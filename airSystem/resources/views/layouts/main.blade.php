@@ -10,7 +10,7 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <title>Document</title>
 </head>
-<body>
+<body style="background-color: #f8fafc;">
 <div id="app">
     @yield('content')
 </div>

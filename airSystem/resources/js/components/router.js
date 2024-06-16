@@ -1,30 +1,61 @@
 import {createRouter, createWebHistory} from 'vue-router';
-import AdminComponent from '../components/Admin.vue';
-import AnalyticsComponent from '../components/Analytics.vue';
-import OperatorComponent from '../components/Operator.vue';
+import AdminComponent from './admin/Admin.vue';
+import AnalystComponent from '../components/analyst/Analyst.vue';
+import OperatorComponent from './operator/Operator.vue';
 import LoginComponent from '../components/auth/LoginComponent.vue'
 import RegisterComponent from '../components/auth/RegisterComponent.vue'
-import UsersComponent from '../components/UsersComponent.vue';
-import AirlineComponent from "../components/AirlineComponent.vue";
-import AirportComponent from "../components/AirportComponent.vue";
-import BoardComponent from "../components/BoardComponent.vue";
-import TypeComponent from "../components/TypeComponent.vue";
+import UsersComponent from './admin/UsersComponent.vue';
+import AirlineComponent from "./admin/AirlineComponent.vue";
+import AirportComponent from "./admin/AirportComponent.vue";
+import BoardComponent from "./admin/BoardComponent.vue";
+import TypeComponent from "./admin/TypeComponent.vue";
+import CountryComponent from "./admin/CountryComponent.vue";
+import ModelComponent from "./admin/ModelComponent.vue";
+import FlightComponent from "./operator/FlightComponent.vue";
+import ScheduleComponent from "./operator/ScheduleComponent.vue";
+import BoardingTakeoffComponent from "@/components/operator/BoardingTakeoffComponent.vue";
+import DelayComponent from "@/components/operator/DelayComponent.vue";
+import AirlineDelayComponent from "@/components/analyst/AirlineDelayComponent.vue";
+import FlightDelayComponent from "@/components/analyst/FlightDelayComponent.vue";
+import AvgDelayComponent from "@/components/analyst/AvgDelayComponent.vue";
+import CategoryDelayComponent from "@/components/analyst/CategoryDelayComponent.vue";
 
 const routes = [
     {
         path: '/admin',
         name: 'admin',
-        component: AdminComponent
+        component: AdminComponent,
+        meta: {requiresAdmin: true}
     },
     {
-        path: '/analytics',
-        name: 'analytics',
-        component: AnalyticsComponent
+        path: '/analyst',
+        name: 'analyst',
+        component: AnalystComponent,
+        meta: {requiresAnalyst: true}
     },
     {
-        path: '/operator',
-        name: 'operator',
-        component: OperatorComponent
+        path: '/analyst/airline',
+        name: 'analystAirline',
+        component: AirlineDelayComponent,
+        meta: {requiresAnalyst: true}
+    },
+    {
+        path: '/analyst/flight',
+        name: 'analystFlight',
+        component: FlightDelayComponent,
+        meta: {requiresAnalyst: true}
+    },
+    {
+        path: '/analyst/avg',
+        name: 'analystAvg',
+        component: AvgDelayComponent,
+        meta: {requiresAnalyst: true}
+    },
+    {
+        path: '/analyst/category',
+        name: 'analystCategory',
+        component: CategoryDelayComponent,
+        meta: {requiresAnalyst: true}
     },
     {
         path: '/user/registration',
@@ -32,35 +63,82 @@ const routes = [
         component: RegisterComponent
     },
     {
-        path: '/user/login',
+        path: '/login',
         name: 'login',
         component: LoginComponent
     },
     {
-        path: '/user/manage',
+        path: '/admin/users',
         name: 'userManage',
-        component: UsersComponent
+        component: UsersComponent,
+        meta: {requiresAdmin: true}
     },
     {
-        path: '/airlines',
+        path: '/admin/airlines',
         name: 'airlines',
-        component: AirlineComponent
+        component: AirlineComponent,
+        meta: {requiresAdmin: true}
     },
     {
-        path: '/airports',
+        path: '/admin/airports',
         name: 'airports',
-        component: AirportComponent
+        component: AirportComponent,
+        meta: {requiresAdmin: true}
     },
     {
-        path: '/boards',
+        path: '/admin/boards',
         name: 'boards',
-        component: BoardComponent
+        component: BoardComponent,
+        meta: {requiresAdmin: true}
     },
     {
-        path: '/categories',
+        path: '/admin/countries',
+        name: 'countries',
+        component: CountryComponent,
+        meta: {requiresAdmin: true}
+    },
+    {
+        path: '/admin/models',
+        name: 'models',
+        component: ModelComponent,
+        meta: {requiresAdmin: true}
+    },
+    {
+        path: '/admin/categories',
         name: 'categories',
-        component: TypeComponent
-    }
+        component: TypeComponent,
+        meta: {requiresAdmin: true}
+    },
+    {
+        path: '/operator/',
+        name: 'operator',
+        component: OperatorComponent,
+        meta: {requiresOperator: true}
+    },
+    {
+        path: '/operator/flights',
+        name: 'flights',
+        component: FlightComponent,
+        meta: {requiresOperator: true}
+    },
+    {
+        path: '/operator/schedules',
+        name: 'schedules',
+        component: ScheduleComponent,
+        meta: {requiresOperator: true}
+    },
+    {
+        path: '/operator/boarding-takeoff',
+        name: 'boarding-takeoff',
+        component: BoardingTakeoffComponent,
+        meta: {requiresOperator: true}
+    },
+    {
+        path: '/operator/delay',
+        name: 'delay',
+        component: DelayComponent,
+        meta: {requiresOperator: true}
+    },
 ];
 
 const router = createRouter({
@@ -70,6 +148,7 @@ const router = createRouter({
 );
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('x_xsrf_token');
+    const role = localStorage.getItem('user_role');
     //NavbarComponent.methods.setToken(token);
     if (!token) {
         if (to.name === 'login' || to.name === 'registration') {
@@ -80,12 +159,23 @@ router.beforeEach((to, from, next) => {
             })
         }
     }
-        if (to.name === 'login' && to.name === 'register'  && token) {
-            return next({
-                name: 'admin'
-            })
-        }
-
-        next()
+    if (to.meta.requiresOperator && role !== 'operator') {
+        // Если маршрут требует роль оператора, но текущий пользователь не является оператором, перенаправляем его на страницу входа
+        return next({name: role});
+    }
+    if (to.meta.requiresAdmin && role !== 'admin') {
+        // Если маршрут требует роль оператора, но текущий пользователь не является оператором, перенаправляем его на страницу входа
+        return next({name: role});
+    }
+    if (to.meta.requiresAnalyst && role !== 'analyst') {
+        // Если маршрут требует роль оператора, но текущий пользователь не является оператором, перенаправляем его на страницу входа
+        return next({name: role});
+    }
+    if (to.name === 'login' && to.name === 'register' && token) {
+        return next({
+            name: role
+        })
+    }
+    next()
 });
 export default router;

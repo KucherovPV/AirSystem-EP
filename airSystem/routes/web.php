@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Auth;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+//Auth::routes();
+Route::post('/login', '\App\Http\Controllers\Auth\LoginController@login');
+Route::post('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
+Route::post('/register', '\App\Http\Controllers\Auth\RegisterController@register');
 
-Auth::routes();
-//Route::post('/register-multiple', \App\Http\Controllers\Auth\RegisterController::class, '');
 Route::get('/{page}', \App\Http\Controllers\IndexController::class)->where('page', '.*');

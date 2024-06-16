@@ -11,17 +11,39 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable;
 
+    const ROLE_ADMIN = 0;
+    const ROLE_ANALYST = 1;
+    const ROLE_OPERATOR = 2;
+
+    private static array $roles = [
+        self::ROLE_ADMIN => 'admin',
+        self::ROLE_ANALYST => 'analyst',
+        self::ROLE_OPERATOR => 'operator',
+    ];
+
+    public static function getRoles()
+    {
+        return self::$roles;
+    }
+
+    public function getRole()
+    {
+        return self::$roles[$this->role];
+    }
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $guard_name = 'api';
+    //protected $guard_name = 'api';
 
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
+        'patronymic',
+        'role',
         'email',
         'password',
     ];

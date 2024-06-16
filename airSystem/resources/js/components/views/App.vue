@@ -1,8 +1,9 @@
 <template>
-    <div>
-        <NavbarComponent :key="$route.fullPath"></NavbarComponent>
-        <router-view></router-view>
-    </div>
+<!--    <div class="col">-->
+<!--        :key="$route.fullPath"-->
+        <NavbarComponent>
+            <router-view></router-view>
+        </NavbarComponent>
 </template>
 
 <script>

@@ -4,17 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TypeCategory extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $table = 'type_category';
-    protected $fillable = [
-        'name',
-        'is_reason_category',
-        'is_flight_type',
-        'is_board_type',
-        'is_reason_status',
-    ];
+    protected $table = 'type_categories';
+    protected $guarded = false;
 }

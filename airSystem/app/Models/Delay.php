@@ -4,30 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Delay extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $table = 'delay';
-    protected $fillable = [
-            'approximate_time',
-            'fk_airport',
-            'fk_flight',
-            'fk_reason_status',
-            'fk_reason_change'
-        ];
+    protected $table = 'delays';
+    protected $guarded = false;
 
-    public function changeReason()
+    public function categoryType(): Relation
     {
-        return $this->belongsTo(ReasonChange::class, 'fk_reason_change');
+        return $this->belongsTo(TypeCategory::class, 'reason_type_id');
     }
-    public function categoryType()
+    public function flight(): Relation
     {
-        return $this->belongsTo(TypeCategory::class, 'fk_reason_status');
+        return $this->belongsTo(Flight::class, 'flight_number');
     }
-    public function flight()
+    public function airport(): Relation
     {
-        return $this->belongsTo(Flight::class, 'fk_flight');
+        return $this->belongsTo(Airport::class, 'airport_code');
     }
 }

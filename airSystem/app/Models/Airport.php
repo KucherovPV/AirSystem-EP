@@ -4,21 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Airport extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $table = 'airport';
+    protected $table = 'airports';
     protected $primaryKey = 'code_iata';
     public $incrementing = false;
-    protected $fillable = [
-        'code_iata',
-        'code_icao',
-        'name',
-        'coordinates',
-        'city',
-        'country'
-    ];
+    protected $guarded = false;
+
+
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id', 'id','cites');
+    }
 
 }

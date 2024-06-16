@@ -1,70 +1,121 @@
 <template>
-    <div>
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-            <div class="container">
-                <div  class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
-                    <ul v-if="user && user.role[0] === 'admin'" class="navbar-nav me-auto">
-                        <li   class="nav-item">
-                            <router-link to="/admin/" class="nav-link">Админ</router-link>
+    <div v-show="token" class="container-fluid">
+
+        <div class="row flex-nowrap ">
+            <div class="nav nav-underline col-auto col-md-3 col-xl-2 px-sm-2 px-0 fixed-sidebar"
+                 style="background-color: cadetblue">
+                <div
+                    class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100 ">
+                    <a v-if="user" v-bind:href="'/'+ user.role"
+                       class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                        <span class="fs-5 d-none d-sm-inline">Главная</span>
+                    </a>
+
+                    <ul v-show="token && user && user.role === 'admin'"
+                        class="nav navbar-nav flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+                        id="menu">
+                        <li class="nav-item ">
+                            <router-link to="/admin/users" class="nav-link"
+                                         :class="{ active: $route.path === '/user/manage' }">Пользователи
+                            </router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/operator/" class="nav-link">оператор</router-link>
+                            <router-link to="/admin/categories" class="nav-link"
+                                         :class="{ active: $route.path === '/categories' }">Категории
+                            </router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/analytics/" class="nav-link">Аналитик</router-link>
+                            <router-link to="/admin/airports" class="nav-link"
+                                         :class="{ active: $route.path === '/airports' }">Аэропорты
+                            </router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/user/manage" class="nav-link">Пользователи</router-link>
+                            <router-link to="/admin/airlines" class="nav-link"
+                                         :class="{ active: $route.path === '/airlines' }">Авиакомпании
+                            </router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/categories" class="nav-link">Категории</router-link>
+                            <router-link to="/admin/boards" class="nav-link"
+                                         :class="{ active: $route.path === '/boards' }">
+                                Борты
+                            </router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/airports" class="nav-link">Аэропорты</router-link>
+                            <router-link to="/admin/countries" class="nav-link"
+                                         :class="{ active: $route.path === '/countries' }">
+                                Страны / города
+                            </router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/airlines" class="nav-link">Авиакомпании</router-link>
+                            <router-link to="/admin/models" class="nav-link"
+                                         :class="{ active: $route.path === '/models' }">
+                                Марки / модели
+                            </router-link>
+                        </li>
+
+                    </ul>
+                    <ul v-show="token && user && user.role === 'operator'"
+                        class="nav navbar-nav flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+                        id="menu">
+                        <li class="nav-item">
+                            <router-link to="/operator/flights" class="nav-link">Рейсы</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/boards" class="nav-link">Борт</router-link>
+                            <router-link to="/operator/schedules" class="nav-link">Расписание</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/operator/boarding-takeoff" class="nav-link">Взлёты / посадки</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/operator/delay" class="nav-link">Задержки</router-link>
                         </li>
                     </ul>
-                    <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
-                        <li v-if="!token" class="nav-item">
-                            <router-link to="/user/login" class="nav-link">Login</router-link>
+                    <ul v-show="token && user && user.role === 'analyst'"
+                        class="nav navbar-nav flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+                        id="menu">
+                        <li class="nav-item">
+                            <router-link to="/analyst/airline" class="nav-link">Авиакомпании</router-link>
                         </li>
-<!--                        <li v-if="!token" class="nav-item">-->
-<!--                            <router-link to="/user/registration" class="nav-link">Register</router-link>-->
-<!--                        </li>-->
-                        <li v-if="token" class="nav-item dropdown">
-                            <a v-if="user" id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                               data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {{ user.name }}
-                            </a>
-                            <div v-if="token" class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" @click.prevent="logout">Logout</a>
-                            </div>
+                        <li class="nav-item">
+                            <router-link to="/analyst/flight" class="nav-link">Борты</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/analyst/avg" class="nav-link">Рейсы</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/analyst/category" class="nav-link">Категории</router-link>
                         </li>
                     </ul>
+                    <hr>
+                    <div v-if="user" class="dropdown pb-4">
+                        <p href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                           id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="d-none d-sm-inline mx-1">{{ user.first_name }} / {{ user.role }}</span>
+                        </p>
+                        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                            <li><a class="dropdown-item btn" @click.prevent="logout">Выход</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </nav>
+            <div class="col py-3" style="padding-left: 15rem;">
+                <slot></slot>
+            </div>
+        </div>
+    </div>
+
+    <div v-show="!token">
+        <slot></slot>
     </div>
 </template>
 
 <script>
-import {useSlots} from "vue";
-
 export default {
     name: 'NavbarComponent',
     data() {
         return {
             user: null,
             token: null,
-            role: null,
         };
     },
     mounted() {
@@ -73,9 +124,12 @@ export default {
     },
     updated() {
         this.getToken();
+        if (localStorage.getItem('count') === '0') {
+            localStorage.setItem('count', '1');
+            this.getUserInfo();
+        }
     },
     methods: {
-        useSlots,
         getToken() {
             this.token = localStorage.getItem('x_xsrf_token');
         },
@@ -83,22 +137,52 @@ export default {
             axios.post('/logout')
                 .then(res => {
                     localStorage.removeItem('x_xsrf_token');
+                    localStorage.removeItem('user_role');
+                    localStorage.removeItem('count');
                     this.$router.push({name: 'login'});
                 });
         },
         getUserInfo() {
-            if(this.token){
-            axios.get('/api/user')
-                .then(response => {
-                    this.user = response.data;
-                })
-                .catch(error => {
-                    console.error('Error fetching user info:', error);
-                });
-        }
-        }
 
+                if (this.token) {
+                    axios.get('/api/user')
+                        .then(response => {
+                            this.user = response.data;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching user info:', error);
+                        });
+                } else {
+                    this.user = null;
+                }
+
+        }
     }
 };
 </script>
+<style>
+.fixed-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1030;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
 
+
+</style>
+<style>
+.loading-row {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999; /* чтобы убедиться, что анимация загрузки на переднем плане */
+}
+
+.text-center {
+    text-align: center;
+}
+</style>

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -64,25 +63,14 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user =  User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
-
-//        $user->assignRole('admin');
-//        return $user;
+        $role = $data['role'];
+        $user->assignRole("$role");
+        error_log($role);
+        return $user;
     }
-//    public function registerMultipleUsers(Request $request)
-//    {
-//        foreach ($request->user as $userData) {
-//            $user = User::create([
-//                'name' => $userData['name'],
-//                'email' => $userData['email'],
-//                'password' => Hash::make($userData['password']),
-//            ]);
-//        }
-//
-//        return response()->json(['message' => 'Users registered successfully']);
-//    }
 }

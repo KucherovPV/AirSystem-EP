@@ -1,74 +1,99 @@
 <template>
-                <div class="card">
-                    <div class="card-header">Регистрация пользователей</div>
-                    <div class="card-body">
-                        <form class="mt-3">
-                            <div class="row mb-3">
-                                <label for="name" class="col-md-4 col-form-label text-md-end">Имя</label>
-                                <div class="col-md-6">
-                                    <input v-model="name" id="name" type="text" class="form-control" name="name"
-                                           required autocomplete="name" autofocus>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="email" class="col-md-4 col-form-label text-md-end">Электронная почта</label>
-
-                                <div class="col-md-6">
-                                    <input v-model="email" id="email" type="email" class="form-control" name="email"
-                                           required autocomplete="email">
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <label for="password" class="col-md-4 col-form-label text-md-end">Пароль</label>
-
-                                <div class="col-md-6">
-                                    <input v-model="password" id="password" type="password" class="form-control"
-                                           name="password" required autocomplete="new-password">
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <label for="password-confirm" class="col-md-4 col-form-label text-md-end">Подтвердить
-                                    пароль</label>
-                                <div class="col-md-6">
-                                    <input v-model="password_confirm" id="password-confirm" type="password"
-                                           class="form-control" name="password_confirmation" required
-                                           autocomplete="new-password">
-                                </div>
-                            </div>
-                            <div class="row mb-0">
-                                <div class="col-md-6 offset-md-4">
-                                    <button @click.prevent="register" type="submit" class="btn btn-primary">
-                                        Зарегистировать
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-
-                    </div>
+    <div class="card card-img-left">
+        <div class="card-header text-center">
+            <h5 class="mb-0">Создание пользователей</h5>
+        </div>
+        <div class="card-body">
+            <form @submit.prevent="register" method="POST">
+                <div class="form-group">
+                    <label for="last_name">Фамилия:</label>
+                    <input type="text" class="form-control" name="last_name" v-model="last_name"
+                           placeholder="Введите код фамилию" required>
                 </div>
+                <div class="form-group">
+                    <label for="first_name">Имя:</label>
+                    <input type="text" class="form-control" name="first_name" v-model="first_name"
+                           placeholder="Введите имя" required>
+                </div>
+                <div class="form-group">
+                    <label for="patronymic">Отчество:</label>
+                    <input type="text" class="form-control" name="patronymic" v-model="patronymic"
+                           placeholder="Введите отчество" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Электронная почта:</label>
+                    <input type="email" class="form-control" name="email" v-model="email"
+                           placeholder="Введите электронную почту" required>
+                </div>
+                <label for="role">Роль:</label>
+                <select v-model="role" v-if="roles" name="role" class="form-select form-control"
+                        data-size="4">
+                    <template v-for="(value, key) in roles" :key="key">
+                        <option :value="key">{{ value }}</option>
+                    </template>
+                </select>
+                <div class="form-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password" class="form-control" name="password" v-model="password"
+                           placeholder="Введите пароль" required>
+                </div>
+                <div class="form-group">
+                    <label for="password_confirmation">Подтвердите пароль:</label>
+                    <input type="password" class="form-control" name="password_confirmation"
+                           v-model="password_confirmation"
+                           placeholder="Подтвердите пароль" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Создать</button>
+            </form>
+        </div>
+    </div>
 </template>
 
 <script>
+import mixin from "../mixins/mixin.js";
+
 export default {
     name: 'RegisterComponent',
+    mixins: [mixin],
     data() {
         return {
-            name: null,
-            email: null,
-            password: null,
-            password_confirm: null,
+            roles: null,
         }
     },
+    mounted() {
+        this.fetchData();
+    },
     methods: {
-        register() {
+        fetchData() {
             axios.get('/sanctum/csrf-cookie').then(response => {
-                axios.post('/register/', {
-                    name: this.name,
+                axios.get('/api/user/roles', {})
+                    .then(res => {
+                        this.roles = res.data;
+                        console.log(res.data)
+                    })
+                    .catch(err => {
+                        console.log(err.response);
+                    })
+            })
+        },
+        register() {
+            console.log(this.first_name + ' ' +
+                this.last_name + ' ' +
+                this.patronymic + ' ' +
+                this.role + ' ' +
+                this.email + ' ' +
+                this.password + ' ' +
+                this.password_confirmation
+            )
+            axios.get('/sanctum/csrf-cookie').then(response => {
+                axios.post('/api/admin/users', {
+                    first_name: this.first_name,
+                    last_name: this.last_name,
+                    patronymic: this.patronymic,
+                    role: this.role,
                     email: this.email,
                     password: this.password,
-                    password_confirmation: this.password_confirm
+                    password_confirmation: this.password_confirmation
                 })
                     .then(res => {
                         console.log(res)

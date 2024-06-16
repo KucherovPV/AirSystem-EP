@@ -1,60 +1,88 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
-
-Route::group(['middleware' => ['auth:sanctum']], function (){
-    Route::get('user/', [App\Http\Controllers\UserController::class, 'user']);
-    Route::get('user/role', [App\Http\Controllers\RoleController::class, 'userRole']);
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get('user/', [\App\Http\Controllers\Api\UserController::class, 'user']);
+    Route::get('user/roles', [\App\Http\Controllers\Api\UserController::class, 'roles']);
 });
 
 
+Route::group(['middleware' => ['auth:sanctum', \App\Http\Middleware\AdminMiddleware::class], 'prefix' => 'admin'], function () {
 
-
-Route::group(['middleware' => ['auth:sanctum', 'role:admin']], function (){
-
-    Route::get('airline/', [App\Http\Controllers\AirlineController::class, 'airline']);
-    Route::post('airline/', [App\Http\Controllers\AirlineController::class, 'createAirline']);
-    Route::patch('airline/{id}', [App\Http\Controllers\AirlineController::class, 'editAirline']);
-    Route::delete('airline/{id}', [App\Http\Controllers\AirlineController::class, 'deleteAirline']);
-
-    Route::get('airport/', [App\Http\Controllers\AirportController::class, 'airport']);
-    Route::post('airport/', [App\Http\Controllers\AirportController::class, 'createAirport']);
-    Route::patch('airport/{id}', [App\Http\Controllers\AirportController::class, 'editAirport']);
-    Route::delete('airport/{id}', [App\Http\Controllers\AirportController::class, 'deleteAirport']);
-
-    Route::get('board/', [App\Http\Controllers\BoardController::class, 'board']);
-    Route::post('board/', [App\Http\Controllers\BoardController::class, 'createBoard']);
-    Route::patch('board/{id}', [App\Http\Controllers\BoardController::class, 'editBoard']);
-    Route::delete('board/{id}', [App\Http\Controllers\BoardController::class, 'deleteBoard']);
-
-    Route::get('delay/',[App\Http\Controllers\DelayController::class, 'delay']);
-    Route::post('delay/create/', [App\Http\Controllers\DelayController::class, 'createDelay']);
-
-
-    Route::post('type/', [App\Http\Controllers\TypeCategoryController::class, 'createType']);
-    Route::patch('type/{id}', [App\Http\Controllers\TypeCategoryController::class, 'editType']);
-    Route::delete('type/{id}', [App\Http\Controllers\TypeCategoryController::class, 'deleteType']);
-    Route::get('type/{category}/',[App\Http\Controllers\TypeCategoryController::class, 'typeByCategory']);
-
-    Route::get('user/list/',[App\Http\Controllers\UserController::class, 'userList']);
-    Route::get('user/{id}/',[App\Http\Controllers\UserController::class, 'userById']);
-
-    Route::get('role/',[App\Http\Controllers\RoleController::class, 'role']);
-    Route::post('role/create', [App\Http\Controllers\RoleController::class, 'createRole']);
-    Route::get('role/delete/',[App\Http\Controllers\RoleController::class, 'deleteRole']);
+    Route::resource('airlines', \App\Http\Controllers\Api\AirlineController::class)->only([
+        'index', 'update', 'destroy', 'store'
+    ]);
+    Route::resource('airports', \App\Http\Controllers\Api\AirportController::class)->only([
+        'index', 'update', 'destroy', 'store'
+    ]);;
+    Route::resource('boards', \App\Http\Controllers\Api\BoardController::class)->parameters([
+        'board' => 'board_code'
+    ])->only([
+        'index', 'update', 'destroy', 'store'
+    ]);
+    Route::resource('cities', \App\Http\Controllers\Api\CityController::class)->parameters([
+    ])->only([
+        'index', 'update', 'destroy', 'store'
+    ]);
+    Route::resource('countries', \App\Http\Controllers\Api\CountryController::class)->parameters([
+    ])->only([
+        'index', 'update', 'destroy', 'store'
+    ]);
+    Route::resource('types', \App\Http\Controllers\Api\TypeCategoryController::class)->only([
+        'show', 'update', 'destroy', 'store'
+    ]);
+    Route::resource('users', \App\Http\Controllers\Api\UserController::class);
+    Route::resource('manufacturers', \App\Http\Controllers\Api\ManufacturerController::class)->only([
+        'index', 'update', 'destroy', 'store'
+    ]);
+    Route::resource('models', \App\Http\Controllers\Api\AircraftModelController::class)->only([
+        'index', 'update', 'destroy', 'store'
+    ]);
 });
 
+Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'operator'], function () {
+    Route::post('/flights/import', [\App\Http\Controllers\Api\FlightController::class, 'import']);
+    Route::resource('flights', \App\Http\Controllers\Api\FlightController::class)->only([
+        'index', 'update', 'destroy', 'store'
+    ]);
+    Route::resource('airlines', \App\Http\Controllers\Api\AirlineController::class)->only([
+        'index'
+    ]);
+    Route::resource('airports', \App\Http\Controllers\Api\AirportController::class)->only([
+        'index'
+    ]);
+    Route::resource('boards', \App\Http\Controllers\Api\BoardController::class)->parameters([
+        'board' => 'board_code'
+    ])->only([
+        'index'
+    ]);
+    Route::get('/boarding-takeoffs', [\App\Http\Controllers\Api\BoardingTakeoff\BoardingTakeoffController::class, 'show']);
+    Route::resource('boarding-takeoffs', \App\Http\Controllers\Api\BoardingTakeoff\BoardingTakeoffController::class)->only([
+        'update',
+    ]);
+    Route::get('/delays', [\App\Http\Controllers\Api\Delay\DelayController::class, 'show']);
+    Route::resource('delays', \App\Http\Controllers\Api\Delay\DelayController::class)->only([
+        'update',
+    ]);
+    Route::get('/schedules/export', [\App\Http\Controllers\Api\Schedule\ScheduleController::class, 'export']);
+    Route::resource('schedules', \App\Http\Controllers\Api\Schedule\ScheduleController::class)->only([
+        'index', 'update', 'destroy', 'store',
+    ]);
+    Route::get('/schedules', [\App\Http\Controllers\Api\Schedule\ScheduleController::class, 'show']);
+    Route::resource('types', \App\Http\Controllers\Api\TypeCategoryController::class)->only([
+        'show'
+    ]);
+    Route::resource('types', \App\Http\Controllers\Api\TypeCategoryController::class)->only([
+        'show'
+    ]);
+    Route::resource('models', \App\Http\Controllers\Api\AircraftModelController::class)->only([
+        'index'
+    ]);
+});
 
+Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'analyst'], function () {
+
+    Route::get('/delays', [\App\Http\Controllers\Api\Delay\DelayController::class, 'getInfoForAnalyst']);
+});
